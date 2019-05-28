@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<modification>
+
+    <name>Product Image Swap</name>
+    <code>product-image-swap</code>
+    <version>1.0.0</version>
+    <author>Santosh Setty</author>
+    <link>https://www.patreon.com/settysantu</link>
+	
+	<file path="catalog/controller/product/product.php">
+		<operation>
+			<search><![CDATA[$this->document->addScript('catalog/view/javascript/jquery/magnific/jquery.magnific-popup.min.js');]]></search>
+			<add position="before"><![CDATA[$this->document->addScript('https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js');]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$data['images'][] = array(]]></search>
+			<add position="after"><![CDATA['swap' => $this->model_tool_image->resize($result['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_thumb_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_thumb_height')),]]></add>
+		</operation>
+	</file>
+
+	<file path="catalog/view/theme/*/template/product/product.twig">
+		<operation>
+			<search><![CDATA[<li><a class="thumbnail" href="{{ popup }}" title="{{ heading_title }}"><img src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" /></a></li>]]></search>
+			<add position="replace"><![CDATA[<li><a class="img-zoom thumbnail" href="{{ popup }}" title="{{ heading_title }}"><img id="zoom_01" src="{{ thumb }}" data-zoom-image="{{ popup }}" title="{{ heading_title }}" alt="{{ heading_title }}" class="img-responsive img-center main_image" /></a></li>]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[<li class="image-additional"><a class="thumbnail" href="{{ image.popup }}" title="{{ heading_title }}"> <img src="{{ image.thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" /></a></li>]]></search>
+			<add position="replace"><![CDATA[<li class="image-additional"><a title="{{ heading_title }}"> <img src="{{ image.thumb }}" name="{{ image.swap }}" id="{{ image.popup }}" title="{{ heading_title }}" alt="{{ heading_title }}" data-zoom-image="{{ image.thumb }}" class="img-responsive img-center thumb_image1" /></a></li>]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$('.thumbnails').magnificPopup({]]></search>
+			<add position="replace"><![CDATA[$('.thumb_image1').click(function(){	  
+		small_image = $(this).attr('name');
+		large_image = $(this).attr('id');
+		$('.main_image').attr('src',small_image);
+		$('#zoom_01').attr('src',small_image);
+		$('#zoom_01').attr('data-zoom-image',large_image);	
+		$('.img-zoom').attr('href',large_image);
+		smallImage = small_image;
+		largeImage = large_image;
+		var ez =   $('#zoom_01').data('elevateZoom');	    
+		ez.swaptheimage(smallImage, largeImage); 
+
+		});	
+		$('.thumbnails > li:first-child').magnificPopup({]]></add>
+		</operation>
+	</file>
+	
+</modification>
